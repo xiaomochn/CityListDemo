@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
+        title.setTextColor(Color.WHITE);
 
         adapter = new ArrayAdapter<>(getApplicationContext(),
                 android.R.layout.simple_list_item_1, dataList);
@@ -96,6 +98,12 @@ public class MainActivity extends AppCompatActivity {
                     showProgressDialog();
                     CityListUtils.handleCityListFromJSON(getApplicationContext());
                     closeProgressDialog();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            queryProvinces();
+                        }
+                    });
                 }
             }).start();
         }
@@ -116,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (currentLevel == LEVEL_COUNTY) {
                     String selectedCountyId = countyList.get(position).getCountyNo();
                     String selectedCountyName = countyList.get(position).getCountyName();
-                    Snackbar.make(view, "选择了: " + selectedCountyName + selectedCountyId,
+                    Snackbar.make(view, "选中了: " + selectedCountyName + selectedCountyId,
                             Snackbar.LENGTH_SHORT).show();
                 }
             }
@@ -129,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
     private void queryProvinces() {
         title.setText("请选择省份");
         provinceList = DataSupport.findAll(Province.class);
-        if (provinceList.size() > 0) {
+        if (provinceList.size() == 34) {
             dataList.clear();
             for (Province province : provinceList) {
                 dataList.add(province.getProvinceName());
@@ -138,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
             cityListView.setSelection(0);
             currentLevel = LEVEL_PROVINCE;
         } else {
+            DataSupport.deleteAll(Province.class);
             initDataBase();
         }
 
@@ -160,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
             cityListView.setSelection(0);
             currentLevel = LEVEL_CITY;
         } else {
+            DataSupport.deleteAll(City.class);
             initDataBase();
         }
 
@@ -182,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
             cityListView.setSelection(0);
             currentLevel = LEVEL_COUNTY;
         } else {
+            DataSupport.deleteAll(County.class);
             initDataBase();
         }
     }
